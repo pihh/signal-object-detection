@@ -1,0 +1,7 @@
+{
+  "name": "unconventional-vision",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
