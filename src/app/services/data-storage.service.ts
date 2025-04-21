@@ -21,7 +21,7 @@ export class DataStorageService {
         if (!db.objectStoreNames.contains(STORE_NAME)) {
           db.createObjectStore(STORE_NAME, { keyPath: 'timestamp' });
         }
-      }
+      },
     });
   }
 
@@ -50,7 +50,7 @@ export class DataStorageService {
     const labelCounts: Record<string, number> = {};
 
     const entries = await this.getAllEntries();
-    entries.forEach(entry => {
+    entries.forEach((entry) => {
       const label = entry.label || 'unknown';
       labelCounts[label] = (labelCounts[label] || 0) + 1;
     });

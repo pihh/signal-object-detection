@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { BluetoothLe } from '@capacitor-community/bluetooth-le';
 import { CameraPreview } from '@capacitor-community/camera-preview';
+import { BluetoothService } from 'src/app/services/bluetooth.service';
 import { CameraService } from 'src/app/services/camera.service';
 import { DataStorageService } from 'src/app/services/data-storage.service'; // Assuming you're using DataStorageService
 import { HeatmapService } from 'src/app/services/heatmap.service';
@@ -45,7 +46,8 @@ export class ScannerComponent implements AfterViewInit, OnDestroy {
     private ngZone: NgZone,
     private dataStorageService: DataStorageService,
     private cameraService: CameraService,
-    private heatmapService: HeatmapService
+    private heatmapService: HeatmapService,
+    public bluetoothService: BluetoothService
   ) {}
 
   async ngAfterViewInit() {
@@ -56,43 +58,92 @@ export class ScannerComponent implements AfterViewInit, OnDestroy {
     this.ctx = ctx;
     this.unsubscribeHeatmap = unsubscribeHeatmap;
     this.forceRenderHeatmap = forceRenderHeatmap;
-
-    /* this.canvas = canvas */
-    /*     await this.initCamera();
-    this.ctx = this.heatmapCanvas.nativeElement.getContext('2d')!;
-    this.forceRenderHeatmap();
-    window.addEventListener('resize', () => this.forceRenderHeatmap());
-    const canvas = this.heatmapCanvas.nativeElement;
-    this.ctx = canvas.getContext('2d')!;
-    this.forceRenderHeatmap();
-
-    window.addEventListener('resize', () => this.forceRenderHeatmap()); */
   }
 
   ngOnDestroy(): void {
     this.unsubscribeHeatmap();
+    this.stopCollecting();
   }
-  /* 
-  async initCamera() {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment' },
-        audio: false,
-      });
-      this.videoElement.nativeElement.srcObject = stream;
-    } catch (err) {
-      console.error('Camera access error:', err);
-    }
-  } */
 
-  /*   private forceRenderHeatmap() {
-    const canvas = this.heatmapCanvas.nativeElement;
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
-  } */
-
-  // Start collecting RSSI values from Bluetooth
   async startCollecting() {
+    this.scanBuffer = {};
+
+    const onScanResult = ({
+      rssi,
+      device,
+      txPower,
+      manufacturerData,
+      serviceData,
+    }) => {
+      try {
+        if (!this.collecting || typeof rssi !== 'number') return;
+
+        this.ngZone.run(() => {
+          try {
+            const id = device.deviceId || 'unknown';
+            if (!this.scanBuffer[id]) this.scanBuffer[id] = [];
+            this.scanBuffer[id].push(rssi);
+
+            // Extract additional features
+            txPower = txPower || 127; // Default value for unavailable TX power
+            const deviceName = device.name || 'unknown';
+            const manufacturerId = manufacturerData
+              ? Object.keys(manufacturerData)[0]
+              : 'unknown';
+            const serviceUUIDs = serviceData ? Object.keys(serviceData) : [];
+            const uuids = device.uuids || [];
+
+            // Optionally: Calculate moving average of RSSI
+            const rssiMovingAvg =
+              this.scanBuffer[id].slice(-5).reduce((acc, val) => acc + val, 0) /
+              5;
+
+            // Store the data
+            const sample = {
+              label: this.currentLabel,
+              timestamp: Date.now(),
+              rssi,
+              deviceId: id,
+              deviceName,
+              txPower,
+              manufacturerId,
+              serviceUUIDs,
+              uuids,
+              rssiMovingAvg,
+              readings: {
+                [id]: rssi,
+              },
+            };
+
+            // Store this sample in the database (DataStorageService)
+            this.dataStorageService.storeSample(sample);
+          } catch (ex) {
+            console.warn(ex);
+            debugger;
+          }
+        });
+      } catch (ex) {
+        console.warn(ex);
+      }
+    };
+    const onFlushBuffer = () => {
+      try {
+        this.flushBuffer();
+      } catch (ex) {
+        console.warn(ex);
+        debugger;
+      }
+    };
+
+    this.forceRenderHeatmap();
+
+    const { unsubscribeBluetoothScanner } =
+      await this.bluetoothService.startScanning(onScanResult, onFlushBuffer);
+    this.stopCollecting = unsubscribeBluetoothScanner;
+  }
+  // Start collecting RSSI values from Bluetooth
+  /*   async startCollecting() {
+    console.log('startCollectingV2');
     try {
       await BluetoothLe.initialize();
     } catch (ex) {
@@ -100,7 +151,7 @@ export class ScannerComponent implements AfterViewInit, OnDestroy {
     }
 
     /*     const canvas = this.heatmapCanvas.nativeElement;
-    this.ctx = canvas.getContext('2d')!; */
+    this.ctx = canvas.getContext('2d')!; *
     this.forceRenderHeatmap();
 
     this.collecting = true;
@@ -159,7 +210,7 @@ export class ScannerComponent implements AfterViewInit, OnDestroy {
       if (this.collecting) this.flushBuffer();
     }, 3000);
   }
-
+ */
   // Stop collecting RSSI values
   stopCollecting() {
     // CameraPreview.stop()
@@ -186,45 +237,4 @@ export class ScannerComponent implements AfterViewInit, OnDestroy {
     );
     this.scanBuffer = {};
   }
-
-  /*   // Draw the heatmap based on RSSI values
-  drawHeatmapFromRssiMap(rssiMap: Record<string, number>) {
-    const canvas = this.heatmapCanvas.nativeElement;
-    this.ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    const width = canvas.width;
-    const height = canvas.height;
-    const ids = Object.keys(rssiMap);
-
-    ids.forEach((id, i) => {
-      const angle = (i / ids.length) * 2 * Math.PI;
-      const x = width / 2 + Math.cos(angle) * 100;
-      const y = height / 2 + Math.sin(angle) * 100;
-      this.drawHeatBlob(x, y, rssiMap[id]);
-    });
-  }
-
-  // Draw a heat blob (circle) on the canvas for each device
-  drawHeatBlob(x: number, y: number, strength: number) {
-    const ctx = this.ctx;
-    const radius = 40;
-    const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
-    const color = this.rssiToColor(strength);
-
-    gradient.addColorStop(0, color);
-    gradient.addColorStop(1, 'transparent');
-
-    ctx.fillStyle = gradient;
-    ctx.beginPath();
-    ctx.arc(x, y, radius, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  // Convert RSSI value to a color (heatmap effect)
-  rssiToColor(rssi: number): string {
-    const norm = Math.min(Math.max((rssi + 100) / 40, 0), 1);
-    const red = Math.floor(255 * norm);
-    const green = Math.floor(255 * (1 - norm));
-    return `rgba(${red}, ${green}, 0, 0.4)`;
-  } */
 }

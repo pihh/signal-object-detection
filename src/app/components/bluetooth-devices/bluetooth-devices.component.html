@@ -1,0 +1,91 @@
+<ion-list inset="true">
+  <ion-item lines="none" *ngIf="selectedBeacon.id">
+    <ion-label>
+      <h3>
+        {{ selectedBeacon.name }}
+      </h3>
+      <p>RSSI: {{ selectedBeacon.rssi }}</p>
+    </ion-label>
+  </ion-item>
+  <ion-item lines="none">
+    <ion-label>
+      <h3>Coordinates</h3>
+      <div class="flex">
+        <ion-input
+          [disabled]="!selectedBeacon.id"
+          [(ngModel)]="xCoord"
+          type="number"
+          label="x"
+          labelPlacement="stacked"
+        ></ion-input>
+        <ion-input
+          [disabled]="!selectedBeacon.id"
+          [(ngModel)]="yCoord"
+          type="number"
+          label="y"
+          labelPlacement="stacked"
+        ></ion-input>
+      </div>
+    </ion-label>
+  </ion-item>
+
+  <ion-item lines="none">
+    <ion-button [disabled]="!selectedBeacon.id" (click)="saveSample()"
+      >Select Beacon</ion-button
+    >
+  </ion-item>
+</ion-list>
+
+<ion-list inset="true">
+  <ion-list-header>
+    <ion-label>Selected beacons</ion-label>
+  </ion-list-header>
+  <app-beacon-list-item
+    *ngFor="let entry of selectedBeacons"
+    [beacon]="entry.beacon"
+    [selected]="selectedBeacon.id == entry.id"
+    [listed]="selectedBeaconIds.indexOf(entry.id) > -1"
+    (toggleListedBeacon)="toggleListedBeacon(entry)"
+    (toggleSelectedBeacon)="toggleSelectedBeacon(entry)"
+  />
+  <ion-item lines="none">
+    <ion-label>
+      <ion-button
+        [disabled]="selectedBeacons.length !== nBeacons"
+        (click)="onConfirmSelection()"
+      >
+        Use these to triangulate
+      </ion-button>
+
+      <ion-text color="medium">
+        <p *ngIf="selectedBeacons.length !== nBeacons">
+          Select exactly {{ nBeacons }} to continue.
+        </p>
+        <p *ngIf="selectedBeacons.length == nBeacons">Start now</p>
+      </ion-text>
+    </ion-label>
+  </ion-item>
+</ion-list>
+
+<ion-list inset="true">
+  <ion-list-header>
+    <ion-label>Available Beacons</ion-label>
+  </ion-list-header>
+
+  <app-beacon-list-item
+    *ngFor="let entry of availableBeacons"
+    [beacon]="entry"
+    [selected]="selectedBeacon.id == entry.id"
+    [listed]="selectedBeaconIds.indexOf(entry.id) > -1"
+    (toggleListedBeacon)="toggleListedBeacon(entry)"
+    (toggleSelectedBeacon)="toggleSelectedBeacon(entry)"
+  />
+
+  <app-beacon-list-item
+    [beacon]="testEntry"
+    [selected]="selectedBeacon.id == testEntry.id"
+    [listed]="selectedBeaconIds.indexOf(testEntry.id) > -1"
+    (toggleListedBeacon)="toggleListedBeacon(testEntry)"
+    (toggleSelectedBeacon)="toggleSelectedBeacon(testEntry)"
+  />
+</ion-list>

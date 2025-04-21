@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { PROJECT } from '../constants';
+import { MovementService } from '../../../services/movement.service';
 
 @Component({
   selector: 'app-tab6',
@@ -9,7 +10,13 @@ import { PROJECT } from '../constants';
 })
 export class Tab6Page implements OnInit {
   title: string = PROJECT.title;
-  constructor() {}
+  constructor(public movementService: MovementService) {}
 
   ngOnInit() {}
+
+  async train() {
+    if (await this.movementService.shouldTrainModel()) {
+      this.movementService.trainModel();
+    }
+  }
 }

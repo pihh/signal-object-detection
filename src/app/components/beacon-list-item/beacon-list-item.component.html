@@ -1,0 +1,24 @@
+<ion-item lines="none">
+  <ion-label>
+    <h3>
+      {{ beacon.name }}
+    </h3>
+    <p>RSSI: {{ beacon.rssi }}</p>
+    <p>Lat: {{ beacon.x }} Lon: {{ beacon.y }}</p>
+  </ion-label>
+  <ion-buttons slot="end">
+    <ion-button (click)="onToggleListedBeacon(beacon)" *ngIf="listed">
+      <ion-icon
+        slot="icon-only"
+        [icon]="listed ? 'checkbox' : 'square-outline'"
+      ></ion-icon>
+    </ion-button>
+    <ion-button (click)="onToggleSelectedBeacon(beacon)">
+      <ion-icon
+        slot="icon-only"
+        [icon]="selected ? 'radio-button-on' : 'radio-button-off'"
+      >
+      </ion-icon>
+    </ion-button>
+  </ion-buttons>
+</ion-item>

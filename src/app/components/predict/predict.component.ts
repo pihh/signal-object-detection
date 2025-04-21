@@ -7,6 +7,7 @@ import {
 } from '@angular/core';
 import { BluetoothLe } from '@capacitor-community/bluetooth-le';
 import { CameraPreview } from '@capacitor-community/camera-preview';
+import { BluetoothService } from 'src/app/services/bluetooth.service';
 import { CameraService } from 'src/app/services/camera.service';
 import { HeatmapService } from 'src/app/services/heatmap.service';
 import { MlModelService } from 'src/app/services/ml-model.service';
@@ -37,7 +38,8 @@ export class PredictComponent implements AfterViewInit {
     private mlModelService: MlModelService,
     private ngZone: NgZone,
     private cameraService: CameraService,
-    private heatmapService: HeatmapService
+    private heatmapService: HeatmapService,
+    public bluetoothService: BluetoothService
   ) {}
 
   async ngAfterViewInit() {

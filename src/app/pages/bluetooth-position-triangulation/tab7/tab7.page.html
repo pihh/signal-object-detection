@@ -1,1 +1,9 @@
-<app-layout [title]="title"> </app-layout>
+<app-layout [title]="title">
+  <div *ngIf="prediction !== null">
+    <h3>Prediction: {{ prediction === 1 ? 'Movement' : 'No Movement' }}</h3>
+    <p>Confidence: {{ confidence * 100 }}%</p>
+  </div>
+
+  <ion-button (click)="predictMovement()">Predict Movement</ion-button>
+  <ion-button (click)="stopPrediction()">Stop Predicting</ion-button>
+</app-layout>

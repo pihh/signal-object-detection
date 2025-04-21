@@ -1,0 +1,16 @@
+<ion-list inset="true">
+  <ion-list-header> Floor Map </ion-list-header>
+
+  <div
+    #cameraPreviewContainer
+    id="cameraPreviewContainer"
+    class="camera-container"
+  >
+    <video #video autoplay playsinline muted></video>
+    <canvas
+      #canvasRef
+      class="heatmap-canvas"
+      (click)="handleClick($event)"
+    ></canvas>
+  </div>
+</ion-list>
