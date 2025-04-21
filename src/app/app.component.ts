@@ -22,7 +22,6 @@ export class AppComponent {
   constructor(private projectService: ProjectService) {
     window.addEventListener(PROJECT_EVENTS.PROJECT_CHANGE, (event: any) => {
       this.selected = event.detail.id;
-      console.log(event);
     });
   }
 

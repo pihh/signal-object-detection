@@ -1,15 +1,24 @@
-import { AfterViewInit, Component, ElementRef, NgZone, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  NgZone,
+  OnDestroy,
+  ViewChild,
+} from '@angular/core';
 import { BluetoothLe } from '@capacitor-community/bluetooth-le';
 import { CameraPreview } from '@capacitor-community/camera-preview';
-import { DataStorageService } from 'src/app/services/data-storage.service';  // Assuming you're using DataStorageService
+import { CameraService } from 'src/app/services/camera.service';
+import { DataStorageService } from 'src/app/services/data-storage.service'; // Assuming you're using DataStorageService
+import { HeatmapService } from 'src/app/services/heatmap.service';
 
 @Component({
   selector: 'app-scanner',
   templateUrl: './scanner.component.html',
   styleUrls: ['./scanner.component.scss'],
-  standalone: false
+  standalone: false,
 })
-export class ScannerComponent implements AfterViewInit {
+export class ScannerComponent implements AfterViewInit, OnDestroy {
   @ViewChild('video') videoElement!: ElementRef<HTMLVideoElement>;
   @ViewChild('heatmapCanvas') heatmapCanvas!: ElementRef<HTMLCanvasElement>;
   labels = [
@@ -23,31 +32,47 @@ export class ScannerComponent implements AfterViewInit {
     'wall_then_person_far',
     'person_then_wall_far',
   ];
-  currentLabel = 'empty';  // This can be dynamically changed via UI
+  currentLabel = 'empty'; // This can be dynamically changed via UI
   collecting = false;
   private ctx!: CanvasRenderingContext2D;
   private scanBuffer: Record<string, number[]> = {};
   private scanListener: any;
 
+  private unsubscribeHeatmap: any;
+  private forceRenderHeatmap: any;
+
   constructor(
     private ngZone: NgZone,
-    private dataStorageService: DataStorageService // Inject DataStorageService to store data
+    private dataStorageService: DataStorageService,
+    private cameraService: CameraService,
+    private heatmapService: HeatmapService
   ) {}
 
   async ngAfterViewInit() {
-   
-    await this.initCamera();
+    const { videoElement, unsubscribeCameraRecorder } =
+      await this.cameraService.startRecording(this.videoElement.nativeElement);
+    const { ctx, canvas, unsubscribeHeatmap, forceRenderHeatmap } =
+      this.heatmapService.createCanvas(this.heatmapCanvas);
+    this.ctx = ctx;
+    this.unsubscribeHeatmap = unsubscribeHeatmap;
+    this.forceRenderHeatmap = forceRenderHeatmap;
+
+    /* this.canvas = canvas */
+    /*     await this.initCamera();
     this.ctx = this.heatmapCanvas.nativeElement.getContext('2d')!;
-    this.resizeCanvas();
-    window.addEventListener('resize', () => this.resizeCanvas());
+    this.forceRenderHeatmap();
+    window.addEventListener('resize', () => this.forceRenderHeatmap());
     const canvas = this.heatmapCanvas.nativeElement;
     this.ctx = canvas.getContext('2d')!;
-    this.resizeCanvas();
+    this.forceRenderHeatmap();
 
-    window.addEventListener('resize', () => this.resizeCanvas());
+    window.addEventListener('resize', () => this.forceRenderHeatmap()); */
   }
 
-
+  ngOnDestroy(): void {
+    this.unsubscribeHeatmap();
+  }
+  /* 
   async initCamera() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -58,94 +83,76 @@ export class ScannerComponent implements AfterViewInit {
     } catch (err) {
       console.error('Camera access error:', err);
     }
-  }
+  } */
 
-  private resizeCanvas() {
+  /*   private forceRenderHeatmap() {
     const canvas = this.heatmapCanvas.nativeElement;
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
-  }
+  } */
 
   // Start collecting RSSI values from Bluetooth
   async startCollecting() {
-    try{
-      await BluetoothLe.initialize()
-    }catch(ex){
-      console.warn(ex)
+    try {
+      await BluetoothLe.initialize();
+    } catch (ex) {
+      console.warn(ex);
     }
 
-    
-    const canvas = this.heatmapCanvas.nativeElement;
-    this.ctx = canvas.getContext('2d')!;
-    this.resizeCanvas();
-
+    /*     const canvas = this.heatmapCanvas.nativeElement;
+    this.ctx = canvas.getContext('2d')!; */
+    this.forceRenderHeatmap();
 
     this.collecting = true;
     this.scanBuffer = {};
 
     await BluetoothLe.requestLEScan({ services: [], allowDuplicates: true });
-    this.scanListener = BluetoothLe.addListener('onScanResult', ({ rssi, device,txPower,manufacturerData,serviceData }) => {
-      if (!this.collecting || typeof rssi !== 'number') return;
-    
-      this.ngZone.run(() => {
-        const id = device.deviceId || 'unknown';
-        if (!this.scanBuffer[id]) this.scanBuffer[id] = [];
-        this.scanBuffer[id].push(rssi);
-    
-        // Extract additional features
-         txPower = txPower || 127; // Default value for unavailable TX power
-        const deviceName = device.name || 'unknown';
-        const manufacturerId = manufacturerData ? Object.keys(manufacturerData)[0] : 'unknown';
-        const serviceUUIDs = serviceData ? Object.keys(serviceData) : [];
-        const uuids = device.uuids || [];
-    
-        // Optionally: Calculate moving average of RSSI
-        const rssiMovingAvg = this.scanBuffer[id].slice(-5).reduce((acc, val) => acc + val, 0) / 5;
-    
-        // Store the data
-        const sample = {
-          label: this.currentLabel,
-          timestamp: Date.now(),
-          rssi,
-          deviceId: id,
-          deviceName,
-          txPower,
-          manufacturerId,
-          serviceUUIDs,
-          uuids,
-          rssiMovingAvg,
-          readings: {
-            [id]: rssi,
-          },
-        };
-    
-        // Store this sample in the database (DataStorageService)
-        this.dataStorageService.storeSample(sample);
-      });
-    });
-    // this.scanListener = BluetoothLe.addListener('onScanResult', ({ rssi, device }) => {
-    //   if (!this.collecting || typeof rssi !== 'number') return;
+    this.scanListener = BluetoothLe.addListener(
+      'onScanResult',
+      ({ rssi, device, txPower, manufacturerData, serviceData }) => {
+        if (!this.collecting || typeof rssi !== 'number') return;
 
-    //   this.ngZone.run(() => {
-    //     const id = device.deviceId || 'unknown';
-    //     if (!this.scanBuffer[id]) this.scanBuffer[id] = [];
-    //     this.scanBuffer[id].push(rssi);
+        this.ngZone.run(() => {
+          const id = device.deviceId || 'unknown';
+          if (!this.scanBuffer[id]) this.scanBuffer[id] = [];
+          this.scanBuffer[id].push(rssi);
 
-    //     // Store each RSSI reading with the current label and timestamp in the service
-    //     const sample = {
-    //       label: this.currentLabel,
-    //       timestamp: Date.now(),
-    //       rssi,
-    //       deviceId:device.deviceId || 'unknown',
-    //       readings: {
-    //         [device.deviceId || 'unknown']: rssi,
-    //       },
-    //     };
+          // Extract additional features
+          txPower = txPower || 127; // Default value for unavailable TX power
+          const deviceName = device.name || 'unknown';
+          const manufacturerId = manufacturerData
+            ? Object.keys(manufacturerData)[0]
+            : 'unknown';
+          const serviceUUIDs = serviceData ? Object.keys(serviceData) : [];
+          const uuids = device.uuids || [];
 
-    //     // Store this sample in the database (DataStorageService)
-    //     this.dataStorageService.storeSample(sample);
-    //   });
-    // });
+          // Optionally: Calculate moving average of RSSI
+          const rssiMovingAvg =
+            this.scanBuffer[id].slice(-5).reduce((acc, val) => acc + val, 0) /
+            5;
+
+          // Store the data
+          const sample = {
+            label: this.currentLabel,
+            timestamp: Date.now(),
+            rssi,
+            deviceId: id,
+            deviceName,
+            txPower,
+            manufacturerId,
+            serviceUUIDs,
+            uuids,
+            rssiMovingAvg,
+            readings: {
+              [id]: rssi,
+            },
+          };
+
+          // Store this sample in the database (DataStorageService)
+          this.dataStorageService.storeSample(sample);
+        });
+      }
+    );
 
     // Periodically flush the buffer and draw heatmap
     setInterval(() => {
@@ -172,11 +179,15 @@ export class ScannerComponent implements AfterViewInit {
       }
     });
 
-    this.drawHeatmapFromRssiMap(averagedReadings);
+    this.heatmapService.drawHeatmapFromRssiMap(
+      this.ctx,
+      this.heatmapCanvas,
+      averagedReadings
+    );
     this.scanBuffer = {};
   }
 
-  // Draw the heatmap based on RSSI values
+  /*   // Draw the heatmap based on RSSI values
   drawHeatmapFromRssiMap(rssiMap: Record<string, number>) {
     const canvas = this.heatmapCanvas.nativeElement;
     this.ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -215,5 +226,5 @@ export class ScannerComponent implements AfterViewInit {
     const red = Math.floor(255 * norm);
     const green = Math.floor(255 * (1 - norm));
     return `rgba(${red}, ${green}, 0, 0.4)`;
-  }
+  } */
 }

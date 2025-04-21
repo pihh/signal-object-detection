@@ -7,6 +7,8 @@ import {
 } from '@angular/core';
 import { BluetoothLe } from '@capacitor-community/bluetooth-le';
 import { CameraPreview } from '@capacitor-community/camera-preview';
+import { CameraService } from 'src/app/services/camera.service';
+import { HeatmapService } from 'src/app/services/heatmap.service';
 import { MlModelService } from 'src/app/services/ml-model.service';
 @Component({
   selector: 'app-predict',
@@ -17,6 +19,7 @@ import { MlModelService } from 'src/app/services/ml-model.service';
 export class PredictComponent implements AfterViewInit {
   @ViewChild('video') videoElement!: ElementRef<HTMLVideoElement>;
   @ViewChild('heatmapCanvas') heatmapCanvas!: ElementRef<HTMLCanvasElement>;
+
   private ctx!: CanvasRenderingContext2D;
   private collecting = false;
   private scanBuffer: Record<string, number[]> = {};
@@ -24,18 +27,30 @@ export class PredictComponent implements AfterViewInit {
   predictionLabel: string = '';
   predictionConfidence: number = 0;
   predicting: boolean = false;
-  
-  constructor(private mlModelService: MlModelService, private ngZone: NgZone) {}
+
+  // subscriptions
+
+  private unsubscribeHeatmap: any;
+  private forceRenderHeatmap: any;
+
+  constructor(
+    private mlModelService: MlModelService,
+    private ngZone: NgZone,
+    private cameraService: CameraService,
+    private heatmapService: HeatmapService
+  ) {}
 
   async ngAfterViewInit() {
-    await this.initCamera();
-    const canvas = this.heatmapCanvas.nativeElement;
-    this.ctx = canvas.getContext('2d')!;
-    this.resizeCanvas();
-    window.addEventListener('resize', () => this.resizeCanvas());
+    const { videoElement, unsubscribeCameraRecorder } =
+      await this.cameraService.startRecording(this.videoElement.nativeElement);
+    const { ctx, canvas, unsubscribeHeatmap, forceRenderHeatmap } =
+      this.heatmapService.createCanvas(this.heatmapCanvas);
+    this.ctx = ctx;
+    this.unsubscribeHeatmap = unsubscribeHeatmap;
+    this.forceRenderHeatmap = forceRenderHeatmap;
   }
 
-  async initCamera() {
+  /*   async initCamera() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'environment' },
@@ -45,13 +60,13 @@ export class PredictComponent implements AfterViewInit {
     } catch (err) {
       console.error('Camera access error:', err);
     }
-  }
+  } */
 
-  private resizeCanvas() {
+  /*   private resizeCanvas() {
     const canvas = this.heatmapCanvas.nativeElement;
     canvas.width = canvas.offsetWidth;
     canvas.height = canvas.offsetHeight;
-  }
+  } */
 
   toggleLivePredict() {
     if (!this.predicting) {
@@ -72,9 +87,9 @@ export class PredictComponent implements AfterViewInit {
       console.warn(ex);
     }
     this.predicting = true;
-    const canvas = this.heatmapCanvas.nativeElement;
+    /*   const canvas = this.heatmapCanvas.nativeElement;
     this.ctx = canvas.getContext('2d')!;
-    this.resizeCanvas();
+    this.forceRenderHeatmap(); */
 
     this.collecting = true;
     this.scanBuffer = {};
@@ -118,10 +133,14 @@ export class PredictComponent implements AfterViewInit {
       console.error('Prediction error:', err);
     }
 
-    this.drawHeatmapFromRssiMap(averagedReadings);
+    this.heatmapService.drawHeatmapFromRssiMap(
+      this.ctx,
+      this.heatmapCanvas,
+      averagedReadings
+    );
     this.scanBuffer = {};
   }
-  drawHeatmapFromRssiMap(rssiMap: Record<string, number>) {
+  /*   drawHeatmapFromRssiMap(rssiMap: Record<string, number>) {
     const canvas = this.heatmapCanvas.nativeElement;
     this.ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -157,5 +176,5 @@ export class PredictComponent implements AfterViewInit {
     const red = Math.floor(255 * norm);
     const green = Math.floor(255 * (1 - norm));
     return `rgba(${red}, ${green}, 0, 0.4)`;
-  }
+  } */
 }
