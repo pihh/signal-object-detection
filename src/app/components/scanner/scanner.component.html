@@ -1,0 +1,30 @@
+<ion-list inset="true">
+  <ion-list-header> Classify </ion-list-header>
+  <div
+    #cameraPreviewContainer
+    id="cameraPreviewContainer"
+    class="camera-container"
+  >
+    <canvas #heatmapCanvas class="heatmap-canvas"></canvas>
+  </div>
+</ion-list>
+
+<ion-list inset="true">
+  <ion-item lines="full">
+    <ion-label>Scenario</ion-label>
+    <ion-select [(ngModel)]="currentLabel">
+      <ion-select-option *ngFor="let label of labels" [value]="label">{{
+        label
+      }}</ion-select-option>
+    </ion-select>
+  </ion-item>
+
+  <ion-item>
+    <ion-button expand="block" (click)="startCollecting()"
+      >Start Collecting</ion-button
+    >
+    <ion-button expand="block" (click)="stopCollecting()"
+      >Stop Collecting</ion-button
+    >
+  </ion-item>
+</ion-list>

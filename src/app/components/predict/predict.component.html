@@ -1,0 +1,23 @@
+<ion-list inset="true">
+  <ion-list-header>
+    <ion-label>Predict</ion-label>
+  </ion-list-header>
+  <ion-item lines="none">
+    <div id="cameraPreviewContainer" class="preview-wrapper"></div>
+    <canvas #heatmapCanvas class="heatmap-layer"></canvas>
+  </ion-item>
+</ion-list>
+
+<ion-list inset="true">
+  <ion-item lines="none">
+    <ion-label>
+      <h3>Predicted: {{ predictionLabel }}</h3>
+      <p>Confidence: {{predictionConfidence | percent:'1.0-1' }}</p>
+    </ion-label>
+  </ion-item>
+  <ion-item lines="none">
+    <ion-button expand="block" (click)="toggleLivePredict()">
+      {{ predicting ? "Stop Prediction" : "Live Predict" }}
+    </ion-button>
+  </ion-item>
+</ion-list>

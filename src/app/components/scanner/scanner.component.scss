@@ -1,0 +1,16 @@
+.camera-container {
+    position: relative;
+    width: 100vw;
+    height: 100vw;
+    overflow: hidden;
+  }
+  
+  .heatmap-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vw;
+    pointer-events: none;
+    z-index: 10;
+  }

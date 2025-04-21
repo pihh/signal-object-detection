@@ -1,0 +1,27 @@
+<ion-content color="light">
+  <ion-segment mode="md">
+    <ion-segment-button value="first" content-id="first">
+      <ion-label>Classify</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="second" content-id="second">
+      <ion-label>Train</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="third" content-id="third">
+      <ion-label>Predict</ion-label>
+    </ion-segment-button>
+  </ion-segment>
+  <ion-segment-view>
+    <ion-segment-content id="first">
+      <app-scanner></app-scanner>
+    </ion-segment-content>
+    <ion-segment-content id="second">
+
+      <app-train></app-train>
+    </ion-segment-content>
+    <ion-segment-content id="third">
+      <app-predict></app-predict>
+    </ion-segment-content>
+  </ion-segment-view>
+
+
+</ion-content>
