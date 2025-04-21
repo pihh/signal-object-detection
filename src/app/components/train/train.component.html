@@ -2,27 +2,34 @@
   <ion-list-header>
     <ion-label>Labels</ion-label>
   </ion-list-header>
-  <ion-item *ngFor="let label of labelCounts" >
+  <ion-item *ngFor="let label of labelCounts">
     <ion-label>
-      <h3>{{label[0]}}</h3>
-      <p>{{label[1]}}</p>
+      <h3>{{ label[0] }}</h3>
+      <p>{{ label[1] }}</p>
     </ion-label>
   </ion-item>
-
 </ion-list>
 
 <ion-list inset="true">
   <ion-list-header>
-    <ion-label>Actions</ion-label>
+    <ion-label>Train</ion-label>
   </ion-list-header>
-  <ion-item>
-    
+  <ion-item lines="none">
+    <ion-progress-bar [value]="mlService.progress"></ion-progress-bar>
+  </ion-item>
+  <ion-item lines="none">
+    <ion-label>
+      <h3>Accuracy: {{ mlService.accuracy }}</h3>
+      <p>Progress: {{ mlService.progress }}</p>
+    </ion-label>
+  </ion-item>
+</ion-list>
+<ion-list inset="true">
+  <ion-item lines="none">
+    <ion-button expand="block" (click)="trainModel()"> Train Model </ion-button>
     <ion-button expand="block" (click)="exportMLDataset()">
       Export ML Dataset
     </ion-button>
 
-    <ion-button expand="block" (click)="trainModel()">
-      Train Model
-    </ion-button>
   </ion-item>
 </ion-list>

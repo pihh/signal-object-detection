@@ -13,7 +13,7 @@ export class TrainComponent  implements OnInit {
 
   labelCounts: any = []
 
-  constructor(private dataStorage: DataStorageService, private mlService: MlModelService) {}
+  constructor(private dataStorage: DataStorageService, public mlService: MlModelService) {}
 
   ngOnInit() {
 

@@ -84,28 +84,68 @@ export class ScannerComponent implements AfterViewInit {
     this.scanBuffer = {};
 
     await BluetoothLe.requestLEScan({ services: [], allowDuplicates: true });
-
-    this.scanListener = BluetoothLe.addListener('onScanResult', ({ rssi, device }) => {
+    this.scanListener = BluetoothLe.addListener('onScanResult', ({ rssi, device,txPower,manufacturerData,serviceData }) => {
       if (!this.collecting || typeof rssi !== 'number') return;
-
+    
       this.ngZone.run(() => {
         const id = device.deviceId || 'unknown';
         if (!this.scanBuffer[id]) this.scanBuffer[id] = [];
         this.scanBuffer[id].push(rssi);
-
-        // Store each RSSI reading with the current label and timestamp in the service
+    
+        // Extract additional features
+         txPower = txPower || 127; // Default value for unavailable TX power
+        const deviceName = device.name || 'unknown';
+        const manufacturerId = manufacturerData ? Object.keys(manufacturerData)[0] : 'unknown';
+        const serviceUUIDs = serviceData ? Object.keys(serviceData) : [];
+        const uuids = device.uuids || [];
+    
+        // Optionally: Calculate moving average of RSSI
+        const rssiMovingAvg = this.scanBuffer[id].slice(-5).reduce((acc, val) => acc + val, 0) / 5;
+    
+        // Store the data
         const sample = {
           label: this.currentLabel,
           timestamp: Date.now(),
+          rssi,
+          deviceId: id,
+          deviceName,
+          txPower,
+          manufacturerId,
+          serviceUUIDs,
+          uuids,
+          rssiMovingAvg,
           readings: {
-            [device.deviceId || 'unknown']: rssi,
+            [id]: rssi,
           },
         };
-
+    
         // Store this sample in the database (DataStorageService)
         this.dataStorageService.storeSample(sample);
       });
     });
+    // this.scanListener = BluetoothLe.addListener('onScanResult', ({ rssi, device }) => {
+    //   if (!this.collecting || typeof rssi !== 'number') return;
+
+    //   this.ngZone.run(() => {
+    //     const id = device.deviceId || 'unknown';
+    //     if (!this.scanBuffer[id]) this.scanBuffer[id] = [];
+    //     this.scanBuffer[id].push(rssi);
+
+    //     // Store each RSSI reading with the current label and timestamp in the service
+    //     const sample = {
+    //       label: this.currentLabel,
+    //       timestamp: Date.now(),
+    //       rssi,
+    //       deviceId:device.deviceId || 'unknown',
+    //       readings: {
+    //         [device.deviceId || 'unknown']: rssi,
+    //       },
+    //     };
+
+    //     // Store this sample in the database (DataStorageService)
+    //     this.dataStorageService.storeSample(sample);
+    //   });
+    // });
 
     // Periodically flush the buffer and draw heatmap
     setInterval(() => {
