@@ -26,14 +26,10 @@ export class DataStorageService {
   }
 
   // Add this method to store sample data
-  async storeSample(sample: { label: string, timestamp: number, readings: Record<string, number> }): Promise<void> {
+  async storeSample(sample: any): Promise<void> {
     const db = await this.dbPromise;
     // Store the sample in the database
-    await db.put(STORE_NAME, {
-      label: sample.label,
-      timestamp: sample.timestamp,
-      readings: sample.readings
-    });
+    await db.put(STORE_NAME, sample);
     console.log('Stored sample in DataStorageService:', sample);
   }
 

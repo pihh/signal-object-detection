@@ -10,4 +10,7 @@ export class Tab2Page {
 
   constructor() {}
 
+  async ngAfterViewInit() {}
+
+  
 }

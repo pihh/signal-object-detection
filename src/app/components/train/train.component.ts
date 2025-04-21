@@ -12,7 +12,7 @@ import { MlModelService } from 'src/app/services/ml-model.service';
 export class TrainComponent  implements OnInit {
 
   labelCounts: any = []
-
+  
   constructor(private dataStorage: DataStorageService, public mlService: MlModelService) {}
 
   ngOnInit() {

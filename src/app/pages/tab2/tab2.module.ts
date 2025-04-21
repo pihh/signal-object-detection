@@ -6,6 +6,10 @@ import { Tab2Page } from './tab2.page';
 import { ExploreContainerComponentModule } from '../../components/explore-container/explore-container.module';
 
 import { Tab2PageRoutingModule } from './tab2-routing.module';
+import { ScannerComponentModule } from 'src/app/components/scanner/scanner.module';
+import { TrainComponentModule } from 'src/app/components/train/train.module';
+import { PredictComponentModule } from 'src/app/components/predict/predict.module';
+
 
 @NgModule({
   imports: [
@@ -13,6 +17,10 @@ import { Tab2PageRoutingModule } from './tab2-routing.module';
     CommonModule,
     FormsModule,
     ExploreContainerComponentModule,
+
+    ScannerComponentModule,
+    TrainComponentModule,
+    PredictComponentModule,
     Tab2PageRoutingModule
   ],
   declarations: [Tab2Page]
