@@ -12,9 +12,9 @@ const TAB_NAMING_CONVENTION: any = [
   ['pricetag', 'Classify'],
   ['barbell', 'Train'],
   ['stats-chart', 'Predict'],
+  ['information-circle', 'Info'],
 ];
 
-console.log({ TAB_LIST, p: Object.values(PROJECTS) });
 @Component({
   selector: 'app-tabs',
   templateUrl: 'tabs.page.html',

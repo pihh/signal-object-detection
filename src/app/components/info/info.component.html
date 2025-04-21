@@ -1,0 +1,45 @@
+<app-layout [title]="title">
+  <ion-list inset="true">
+    <ion-item>
+      <ion-label>
+        <h3>About:</h3>
+        <p>
+          {{ about }}
+        </p>
+      </ion-label>
+    </ion-item>
+  </ion-list>
+  <ion-list inset="true">
+    <ion-item>
+      <ion-label>
+        <h3>Technlogy:</h3>
+        <ul>
+          @for(t of tech; track t){
+          <li>
+            <p>{{ t }}</p>
+          </li>
+          }
+        </ul>
+      </ion-label>
+    </ion-item>
+  </ion-list>
+
+  <ion-list inset="true">
+    <ion-item>
+      <ion-label>
+        <h3>Author:</h3>
+        <p>{{ signature }}</p>
+        <p>Catch me up on github!</p>
+      </ion-label>
+      <ion-buttons slot="end">
+        <ion-button [attr.href]="git">
+          <ion-icon
+            slot="icon-only"
+            icon="logo-github"
+            color="primary"
+          ></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    </ion-item>
+  </ion-list>
+</app-layout>

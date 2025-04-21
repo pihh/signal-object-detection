@@ -7,14 +7,14 @@ export const PROJECTS: any = {
     title: 'Bluetooth Vision',
     url: '/tabs/tab1',
     icon: 'body',
-    tabs: [1, 2, 3],
+    tabs: [1, 2, 3, 4],
   },
   BLUETOOTH_POSITION_TRIANGULATION: {
     id: 'BLUETOOTH_POSITION_TRIANGULATION',
     title: 'Bluetooth Triangulation',
     url: '/tabs/tab5',
     icon: 'triangle',
-    tabs: [5, 6, 7],
+    tabs: [5, 6, 7, 8],
   },
 };
 

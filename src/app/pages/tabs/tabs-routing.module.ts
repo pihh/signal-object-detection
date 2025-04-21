@@ -31,7 +31,9 @@ const routes: Routes = [
       {
         path: 'tab4',
         loadChildren: () =>
-          import('../tab4/tab4.module').then((m) => m.Tab4PageModule),
+          import('../bluetooth-signal-wall-scanner/tab4/tab4.module').then(
+            (m) => m.Tab4PageModule
+          ),
       },
       {
         path: 'tab5',
@@ -52,6 +54,13 @@ const routes: Routes = [
         loadChildren: () =>
           import('../bluetooth-position-triangulation/tab7/tab7.module').then(
             (m) => m.Tab7PageModule
+          ),
+      },
+      {
+        path: 'tab8',
+        loadChildren: () =>
+          import('../bluetooth-position-triangulation/tab8/tab8.module').then(
+            (m) => m.Tab8PageModule
           ),
       },
       /*
