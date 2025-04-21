@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { PROJECT } from '../constants';
 
 @Component({
   selector: 'app-tab3',
@@ -7,6 +8,7 @@ import { Component } from '@angular/core';
   standalone: false,
 })
 export class Tab3Page {
+  title: string = PROJECT.title;
   constructor() {}
 
   async ngAfterViewInit() {}

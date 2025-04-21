@@ -1,7 +1,5 @@
 import { AfterViewInit, Component } from '@angular/core';
-
-
-const GRID_CELLS = 9; // e.g. 3x3 grid
+import { PROJECT } from '../constants';
 
 @Component({
   selector: 'app-tab1',
@@ -9,14 +7,9 @@ const GRID_CELLS = 9; // e.g. 3x3 grid
   styleUrls: ['tab1.page.scss'],
   standalone: false,
 })
-export class Tab1Page implements AfterViewInit{
-  
-  constructor(
+export class Tab1Page implements AfterViewInit {
+  title: string = PROJECT.title;
+  constructor() {}
 
-  ) {}
-
-  async ngAfterViewInit() {
-  }
- 
-
+  async ngAfterViewInit() {}
 }

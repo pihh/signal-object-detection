@@ -1,5 +1,13 @@
 import { Component } from '@angular/core';
+import {
+  PROJECT_EVENTS,
+  PROJECT_STORAGE_KEYS,
+  PROJECTS,
+  ProjectService,
+} from './services/project.service';
+import { tan } from '@tensorflow/tfjs';
 
+const MENU_TABS = Object.values(PROJECTS) || [];
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
@@ -7,5 +15,18 @@ import { Component } from '@angular/core';
   standalone: false,
 })
 export class AppComponent {
-  constructor() {}
+  appPages: any = MENU_TABS;
+
+  selected = PROJECT_STORAGE_KEYS.DEFAULT_PROJECT;
+
+  constructor(private projectService: ProjectService) {
+    window.addEventListener(PROJECT_EVENTS.PROJECT_CHANGE, (event: any) => {
+      this.selected = event.detail.id;
+      console.log(event);
+    });
+  }
+
+  onSelectProject(id: string) {
+    this.projectService.onProjectChange(id);
+  }
 }
