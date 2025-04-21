@@ -1,10 +1,12 @@
 <ion-list inset="true">
   <ion-list-header> Classify </ion-list-header>
+
   <div
     #cameraPreviewContainer
     id="cameraPreviewContainer"
     class="camera-container"
   >
+    <video #video autoplay playsinline muted></video>
     <canvas #heatmapCanvas class="heatmap-canvas"></canvas>
   </div>
 </ion-list>

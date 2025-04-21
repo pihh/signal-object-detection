@@ -1,11 +1,15 @@
+
 <ion-list inset="true">
-  <ion-list-header>
-    <ion-label>Predict</ion-label>
-  </ion-list-header>
-  <ion-item lines="none">
-    <div id="cameraPreviewContainer" class="preview-wrapper"></div>
-    <canvas #heatmapCanvas class="heatmap-layer"></canvas>
-  </ion-item>
+  <ion-list-header> Predict </ion-list-header>
+
+  <div
+    #cameraPreviewContainer
+    id="cameraPreviewContainer"
+    class="camera-container"
+  >
+    <video #video autoplay playsinline muted></video>
+    <canvas #heatmapCanvas class="heatmap-canvas"></canvas>
+  </div>
 </ion-list>
 
 <ion-list inset="true">

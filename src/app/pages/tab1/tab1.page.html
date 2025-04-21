@@ -1,15 +1,27 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>
+      Unconvencional vision
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
 <ion-content color="light">
-  <ion-segment mode="md">
-    <ion-segment-button value="first" content-id="first">
-      <ion-label>Classify</ion-label>
-    </ion-segment-button>
-    <ion-segment-button value="second" content-id="second">
-      <ion-label>Train</ion-label>
-    </ion-segment-button>
-    <ion-segment-button value="third" content-id="third">
-      <ion-label>Predict</ion-label>
-    </ion-segment-button>
-  </ion-segment>
+  <ion-header>
+    <ion-toolbar>
+
+      <ion-segment mode="md">
+        <ion-segment-button value="first" content-id="first">
+          <ion-label>Classify</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="second" content-id="second">
+          <ion-label>Train</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="third" content-id="third">
+          <ion-label>Predict</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+    </ion-toolbar>
+  </ion-header>
   <ion-segment-view>
     <ion-segment-content id="first">
       <app-scanner></app-scanner>

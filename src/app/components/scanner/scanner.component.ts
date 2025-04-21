@@ -10,6 +10,7 @@ import { DataStorageService } from 'src/app/services/data-storage.service';  // 
   standalone: false
 })
 export class ScannerComponent implements AfterViewInit {
+  @ViewChild('video') videoElement!: ElementRef<HTMLVideoElement>;
   @ViewChild('heatmapCanvas') heatmapCanvas!: ElementRef<HTMLCanvasElement>;
   labels = [
     'empty',
@@ -35,7 +36,10 @@ export class ScannerComponent implements AfterViewInit {
 
   async ngAfterViewInit() {
    
-
+    await this.initCamera();
+    this.ctx = this.heatmapCanvas.nativeElement.getContext('2d')!;
+    this.resizeCanvas();
+    window.addEventListener('resize', () => this.resizeCanvas());
     const canvas = this.heatmapCanvas.nativeElement;
     this.ctx = canvas.getContext('2d')!;
     this.resizeCanvas();
@@ -44,6 +48,17 @@ export class ScannerComponent implements AfterViewInit {
   }
 
 
+  async initCamera() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment' },
+        audio: false,
+      });
+      this.videoElement.nativeElement.srcObject = stream;
+    } catch (err) {
+      console.error('Camera access error:', err);
+    }
+  }
 
   private resizeCanvas() {
     const canvas = this.heatmapCanvas.nativeElement;
@@ -53,14 +68,11 @@ export class ScannerComponent implements AfterViewInit {
 
   // Start collecting RSSI values from Bluetooth
   async startCollecting() {
-
-    await CameraPreview.start({
-      parent: 'cameraPreviewContainer',
-      className: 'camera-preview',
-      position: 'rear',
-      width:document.body.offsetWidth,
-      height:document.body.offsetWidth,
-    });
+    try{
+      await BluetoothLe.initialize()
+    }catch(ex){
+      console.warn(ex)
+    }
 
     
     const canvas = this.heatmapCanvas.nativeElement;
@@ -103,10 +115,10 @@ export class ScannerComponent implements AfterViewInit {
 
   // Stop collecting RSSI values
   stopCollecting() {
-    this.collecting = false;
+    // CameraPreview.stop()
+    // this.collecting = false;
     this.scanListener?.remove();
     this.flushBuffer();
-    CameraPreview.stop()
   }
 
   // Process the buffered data

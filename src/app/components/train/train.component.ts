@@ -11,17 +11,20 @@ import { MlModelService } from 'src/app/services/ml-model.service';
 })
 export class TrainComponent  implements OnInit {
 
-  labelCounts: Record<string, number> = {};
+  labelCounts: any = []
 
   constructor(private dataStorage: DataStorageService, private mlService: MlModelService) {}
 
   ngOnInit() {
+
+    console.log('train',this)
     this.updateCounts();
   }
 
   // Update the label counts
   async updateCounts() {
-    this.labelCounts = await this.dataStorage.countLabels();
+    const labelCounts = await this.dataStorage.countLabels();
+    this.labelCounts = Object.entries(labelCounts)
   }
 
   // Getter to display labels dynamically in the template

@@ -2,8 +2,13 @@
   <ion-list-header>
     <ion-label>Labels</ion-label>
   </ion-list-header>
-  <ion-item>
+  <ion-item *ngFor="let label of labelCounts" >
+    <ion-label>
+      <h3>{{label[0]}}</h3>
+      <p>{{label[1]}}</p>
+    </ion-label>
   </ion-item>
+
 </ion-list>
 
 <ion-list inset="true">
