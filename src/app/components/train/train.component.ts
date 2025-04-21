@@ -17,7 +17,7 @@ export class TrainComponent  implements OnInit {
 
   ngOnInit() {
 
-    console.log('train',this)
+    
     this.updateCounts();
   }
 
@@ -120,6 +120,10 @@ export class TrainComponent  implements OnInit {
     a.download = 'ml_dataset.csv';
     a.click();
     
+  }
+
+  exportMLModel(){
+    alert('TODO')
   }
 
 }

@@ -24,7 +24,7 @@ export class PredictComponent implements AfterViewInit {
   predictionLabel: string = '';
   predictionConfidence: number = 0;
   predicting: boolean = false;
-
+  
   constructor(private mlModelService: MlModelService, private ngZone: NgZone) {}
 
   async ngAfterViewInit() {
@@ -71,7 +71,7 @@ export class PredictComponent implements AfterViewInit {
     } catch (ex) {
       console.warn(ex);
     }
-
+    this.predicting = true;
     const canvas = this.heatmapCanvas.nativeElement;
     this.ctx = canvas.getContext('2d')!;
     this.resizeCanvas();
